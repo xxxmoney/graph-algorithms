@@ -1,8 +1,9 @@
 ﻿from dfs import DepthFirstSearch
-from dfs import VertexState
 from print_graph import print_graph
+from print_graph import print_graph_from_dfs
 from calculate_positions import calculate_positions
 from continous_components import ContinuousComponents
+from transpose import transpose
 
 
 def simple_dfs_test():
@@ -18,42 +19,49 @@ def simple_dfs_test():
         'I': []
     }
 
-    positions = calculate_positions(graph)
-
     dfs = DepthFirstSearch(graph)
-
-    dfs.on_change(
-        lambda: print_graph(
-            graph,
-            grey_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITING],
-            black_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITED],
-            positions=positions)
-    )
-
+    dfs.on_change(lambda: print_graph_from_dfs(graph, dfs))
     dfs.run()
 
 
 def continuous_components_test():
     graph = {
-        'A': ['B', 'C'],
-        'B': ['A', 'D'],
-        'C': [],
-        'D': ['E'],
-        'E': []
+        'A': ['B'],
+        'B': ['C', 'E', 'F'],
+        'C': ['D', 'G'],
+        'D': ['C', 'H'],
+        'E': ['A', 'F'],
+        'F': ['G'],
+        'G': ['F'],
+        'H': ['D', 'G'],
     }
-
-    positions = calculate_positions(graph)
 
     cc = ContinuousComponents(graph)
     dfs = cc.run()
 
-    print_graph(
-        graph,
-        grey_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITING],
-        black_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITED],
-        positions=positions
-    )
+    print_graph_from_dfs(graph, dfs)
+
+
+def transpose_test():
+    graph = {
+        'A': ['B'],
+        'B': ['C', 'E', 'F'],
+        'C': ['D', 'G'],
+        'D': ['C', 'H'],
+        'E': ['A', 'F'],
+        'F': ['G'],
+        'G': ['F'],
+        'H': ['D', 'G'],
+    }
+
+    positions = calculate_positions(graph)
+
+    transposed = transpose(graph)
+
+    print_graph(graph, positions=positions)
+    print_graph(transposed, positions=positions)
 
 
 # simple_dfs_test()
-continuous_components_test()
+# continuous_components_test()
+transpose_test()

@@ -1,5 +1,7 @@
 ﻿import networkx as nx
 import matplotlib.pyplot as plt
+from calculate_positions import calculate_positions
+from dfs import VertexState
 
 
 def print_graph(graph, grey_nodes=None, black_nodes=None, positions=None):
@@ -24,3 +26,14 @@ def print_graph(graph, grey_nodes=None, black_nodes=None, positions=None):
     nx.draw(G, pos=positions, with_labels=True, node_color=node_colors, font_color='red', font_weight='bold', )
     plt.show()
     plt.close()
+
+
+def print_graph_from_dfs(graph, dfs):
+    positions = calculate_positions(graph)
+
+    print_graph(
+        graph,
+        grey_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITING],
+        black_nodes=[vertex for vertex, state in dfs.states.items() if state == VertexState.VISITED],
+        positions=positions
+    )
