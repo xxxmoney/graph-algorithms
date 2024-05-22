@@ -18,7 +18,7 @@ def print_graph(graph, grey_nodes=None, black_nodes = None, positions = None):
         G.add_node(node)
         for neighbor in neighbors:
             G.add_edge(node, neighbor)
-    
+
     node_colors = ['grey' if node in grey_nodes else ('black' if node in black_nodes else 'white') for node in G.nodes()]
     nx.draw(G, pos=positions, with_labels=True, node_color=node_colors)
     plt.show()

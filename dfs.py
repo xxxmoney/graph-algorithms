@@ -1,50 +1,40 @@
-﻿from print_graph import print_graph
+﻿from events import Events
+from enum import Enum
 
 
-def dfs(graph, node, positions=None):
-    visited = set()
-    stack = []
-
-    print_graph(graph, list(stack), list(visited), positions)
-
-    visited.add(node)
-    stack.append(node)
-
-    while stack:
-        s = stack.pop()
-        print_graph(graph, list(stack), list(visited), positions)
-        for n in graph[s]:
-            if n not in visited:
-                visited.add(n)
-                stack.append(n)
-
-                print_graph(graph, list(stack), list(visited), positions)
-                print('Stack: ', stack)
-                print('Visited: ', visited)
+class VertexState(Enum):
+    UNVISITED = 0
+    VISITING = 1
+    VISITED = 2
 
 
-graph = {
-    'A': ['B', 'G'],
-    'B': ['C', 'D', 'E'],
-    'C': [],
-    'D': [],
-    'E': ['F'],
-    'F': [],
-    'G': ['H'],
-    'H': ['I'],
-    'I': []
-}
+class DepthFirstSearch:
+    def __init__(self, graph, order=None):
+        self.graph = graph
+        self.states = {vertex: VertexState.UNVISITED for vertex in graph}
+        self.__events = Events()
+        self.order = order if order else [vertex for vertex in graph]
 
-positions = {
-    'A': (0, 0),
-    'B': (-1, -1),
-    'C': (-2, -2),
-    'D': (-1, -2),
-    'E': (0, -2),
-    'F': (1, -2),
-    'G': (1, -1),
-    'H': (2, -1),
-    'I': (3, -1)
-}
+    def run(self):
+        for vertex in self.order:
+            if self.states[vertex] == VertexState.UNVISITED:
+                self.visit(vertex)
 
-dfs(graph, 'A', positions=positions)
+        self.__call_on_change()
+
+    def visit(self, vertex):
+        self.states[vertex] = VertexState.VISITING
+        self.__call_on_change()
+
+        for neighbor in self.graph[vertex]:
+            if self.states[neighbor] == VertexState.UNVISITED:
+                self.visit(neighbor)
+
+        self.states[vertex] = VertexState.VISITED
+        self.__call_on_change()
+
+    def on_change(self, callback):
+        self.__events.on_change += callback
+
+    def __call_on_change(self):
+        self.__events.on_change()
