@@ -63,5 +63,5 @@ def transpose_test():
 
 
 # simple_dfs_test()
-# continuous_components_test()
-transpose_test()
+continuous_components_test()
+# transpose_test()
