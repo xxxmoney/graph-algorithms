@@ -24,24 +24,6 @@ def simple_dfs_test():
     dfs.run()
 
 
-def continuous_components_test():
-    graph = {
-        'A': ['B'],
-        'B': ['C', 'E', 'F'],
-        'C': ['D', 'G'],
-        'D': ['C', 'H'],
-        'E': ['A', 'F'],
-        'F': ['G'],
-        'G': ['F'],
-        'H': ['D', 'G'],
-    }
-
-    cc = ContinuousComponents(graph)
-    dfs = cc.run()
-
-    print_graph_from_dfs(graph, dfs)
-
-
 def transpose_test():
     graph = {
         'A': ['B'],
@@ -62,6 +44,24 @@ def transpose_test():
     print_graph(transposed, positions=positions)
 
 
+def continuous_components_test():
+    graph = {
+        'A': ['B'],
+        'B': ['C', 'E', 'F'],
+        'C': ['D', 'G'],
+        'D': ['C', 'H'],
+        'E': ['A', 'F'],
+        'F': ['G'],
+        'G': ['F'],
+        'H': ['D', 'G'],
+    }
+
+    cc = ContinuousComponents(graph)
+    sccs = cc.run()
+
+    print(sccs)
+
+
 # simple_dfs_test()
-continuous_components_test()
 # transpose_test()
+continuous_components_test()
