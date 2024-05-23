@@ -3,19 +3,22 @@ from transpose import transpose
 
 
 class ContinuousComponents:
+    dfs = None
+    dfs_transposed = None
+
     def __init__(self, graph):
         self.graph = graph
 
     def run(self):
-        dfs = DepthFirstSearch(self.graph)
-        dfs.run()
+        self.dfs = DepthFirstSearch(self.graph)
+        self.dfs.run()
 
         transposed = transpose(self.graph)
-        order = sorted(dfs.times, key=lambda vertex: dfs.times[vertex][1], reverse=True)
-        dfs_transposed = DepthFirstSearch(transposed, order)
-        dfs_transposed.run()
+        order = sorted(self.dfs.times, key=lambda vertex: self.dfs.times[vertex][1], reverse=True)
+        self.dfs_transposed = DepthFirstSearch(transposed, order)
+        self.dfs_transposed.run()
 
-        return ContinuousComponents.__find_sccs_from_edges(dfs_transposed)
+        return ContinuousComponents.__find_sccs_from_edges(self.dfs_transposed)
 
     @staticmethod
     def __find_sccs_from_edges(dfs):
