@@ -61,6 +61,8 @@ def continuous_components_test():
 
     print("Edges: ", cc.dfs_transposed.edges)
     print("Strongly Continous Components: ", sccs)
+    
+    print_graph_from_dfs(graph, cc.dfs_transposed)
 
 
 # simple_dfs_test()
