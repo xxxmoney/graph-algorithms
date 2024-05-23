@@ -1,50 +1,73 @@
-﻿from print_graph import print_graph
+﻿from events import Events
+from enum import Enum
 
 
-def dfs(graph, node, positions=None):
-    visited = set()
-    stack = []
-
-    print_graph(graph, list(stack), list(visited), positions)
-
-    visited.add(node)
-    stack.append(node)
-
-    while stack:
-        s = stack.pop()
-        print_graph(graph, list(stack), list(visited), positions)
-        for n in graph[s]:
-            if n not in visited:
-                visited.add(n)
-                stack.append(n)
-
-                print_graph(graph, list(stack), list(visited), positions)
-                print('Stack: ', stack)
-                print('Visited: ', visited)
+class VertexState(Enum):
+    # Nezpracovaný
+    UNVISITED = 0
+    # Zpracovávaný / šedý
+    VISITING = 1
+    # Zpracovaný / černý
+    VISITED = 2
 
 
-graph = {
-    'A': ['B', 'G'],
-    'B': ['C', 'D', 'E'],
-    'C': [],
-    'D': [],
-    'E': ['F'],
-    'F': [],
-    'G': ['H'],
-    'H': ['I'],
-    'I': []
-}
+class EdgeType(Enum):
+    # Stromová
+    TREE = 1
+    # Zpětná
+    BACK = 2
+    # Dopředná
+    FORWARD = 3
+    # Příčná
+    CROSS = 4
 
-positions = {
-    'A': (0, 0),
-    'B': (-1, -1),
-    'C': (-2, -2),
-    'D': (-1, -2),
-    'E': (0, -2),
-    'F': (1, -2),
-    'G': (1, -1),
-    'H': (2, -1),
-    'I': (3, -1)
-}
 
-dfs(graph, 'A', positions=positions)
+class DepthFirstSearch:
+    def __init__(self, graph, order=None):
+        self.graph = graph
+        self.states = {vertex: VertexState.UNVISITED for vertex in graph}
+        self.time = 0
+        self.times = {vertex: (0, 0) for vertex in graph}
+        self.edges = {}
+        self.has_cycle = False
+        self.__events = Events()
+        self.order = order if order else [vertex for vertex in graph]
+
+    def run(self):
+        self.__call_on_change()
+
+        for vertex in self.order:
+            if self.states[vertex] == VertexState.UNVISITED:
+                self.visit(vertex)
+
+        self.__call_on_change()
+
+    def visit(self, vertex):
+        self.states[vertex] = VertexState.VISITING
+        self.time += 1
+        self.times[vertex] = (self.time, 0)
+
+        self.__call_on_change()
+
+        for neighbor in self.graph[vertex]:
+            if self.states[neighbor] == VertexState.UNVISITED:
+                self.visit(neighbor)
+                self.edges[(vertex, neighbor)] = EdgeType.TREE
+            elif self.states[neighbor] == VertexState.VISITING:
+                self.has_cycle = True
+                self.edges[(vertex, neighbor)] = EdgeType.BACK
+            elif self.times[vertex][0] < self.times[neighbor][0]:
+                self.edges[(vertex, neighbor)] = EdgeType.FORWARD
+            else:
+                self.edges[(vertex, neighbor)] = EdgeType.CROSS
+
+        self.states[vertex] = VertexState.VISITED
+        self.time += 1
+        self.times[vertex] = (self.times[vertex][0], self.time)
+        self.__call_on_change()
+
+    def on_change(self, callback):
+        self.__events.on_change += callback
+
+    def __call_on_change(self):
+        self.__events.on_change()
